@@ -4,7 +4,7 @@ tasks {
 }
 
 dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation(project(":domains:domain-rds"))
-    implementation(project(":api:api-kk"))
-    implementation(project(":api:api-nv"))
+    implementation(project(":modules:open-api"))
 }
