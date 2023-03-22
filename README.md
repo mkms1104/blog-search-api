@@ -1,5 +1,5 @@
 # blog-search-api
-
+- 카카오, 네이버 블로그 검색 API를 활용한 인기 키워드 관리
 
 # 개발환경
 - Kotlin, Java 11
