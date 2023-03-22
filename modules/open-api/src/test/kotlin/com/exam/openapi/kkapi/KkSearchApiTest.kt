@@ -1,34 +1,49 @@
 package com.exam.openapi.kkapi
 
+import io.mockk.spyk
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.RequestEntity
-import org.springframework.web.util.UriComponentsBuilder
+import org.junit.jupiter.api.assertThrows
 
 internal class KkSearchApiTest {
-    private val restTemplate = RestTemplateBuilder()
-        .rootUri("https://dapi.kakao.com")
-        .build()
-
     @Test
-    fun aaa() {
-        val uri = UriComponentsBuilder
-            .fromUriString("/v2/search/blog")
-            .queryParam("query", "청바지")
-            .build().toUriString()
+    @DisplayName("required parameter check test")
+    fun blog() {
+        val kkSearchApi = spyk<KkSearchApi>()
 
-        val httpHeaders = HttpHeaders().apply {
-            add("Authorization", "KakaoAK a5a7fc605b86230e75b1d803e7b5f39b")
+        // Mocking to prevent API requests
+//        every { kkSearchApi.execute(any(), any(), String::class.java) } answers { ResponseEntity.ok("{}") }
+
+        // ============================ check kwdName param ============================ //
+        assertThrows<IllegalStateException> { kkSearchApi.blog("") }.also {
+            assertEquals("kwdName should not be null", it.message)
         }
 
-        val requestEntity = RequestEntity
-            .method(HttpMethod.GET, uri)
-            .headers(httpHeaders)
-            .build()
+        // ============================ check page param ============================ //
+        assertThrows<IllegalStateException> { kkSearchApi.blog("청바지", -1, 10) }.also {
+            assertEquals("page should be between 1 and 50", it.message)
+        }
+        assertThrows<IllegalStateException> { kkSearchApi.blog("청바지", 0, 10) }.also {
+            assertEquals("page should be between 1 and 50", it.message)
+        }
+        assertThrows<IllegalStateException> { kkSearchApi.blog("청바지", 51, 10) }.also {
+            assertEquals("page should be between 1 and 50", it.message)
+        }
 
-        val result = restTemplate.exchange(requestEntity, String::class.java)
-        println(result)
+        // ============================ check size param ============================ //
+        assertThrows<IllegalStateException> { kkSearchApi.blog("청바지", 1, -1) }.also {
+            assertEquals("size should be between 1 and 50", it.message)
+        }
+        assertThrows<IllegalStateException> { kkSearchApi.blog("청바지", 1, 0) }.also {
+            assertEquals("size should be between 1 and 50", it.message)
+        }
+        assertThrows<IllegalStateException> { kkSearchApi.blog("청바지", 1, 51) }.also {
+            assertEquals("size should be between 1 and 50", it.message)
+        }
+
+        // ============================ check normal case ============================ //
+        assertDoesNotThrow { kkSearchApi.blog("청바지", 1, 10) }
     }
+
 }

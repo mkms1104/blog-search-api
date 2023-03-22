@@ -34,6 +34,8 @@ subprojects {
         developmentOnly("org.springframework.boot:spring-boot-devtools")
         runtimeOnly("com.h2database:h2")
         testImplementation("org.springframework.boot:spring-boot-starter-test")
+        testImplementation("com.ninja-squad:springmockk:3.0.1")
+        testImplementation("io.mockk:mockk:1.13.4")
     }
 
     tasks.withType<KotlinCompile> {

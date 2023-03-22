@@ -1,38 +1,51 @@
 package com.exam.openapi.nvapi
 
+import com.exam.openapi.kkapi.KkSearchApi
+import io.mockk.spyk
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.RequestEntity
-import org.springframework.web.util.UriComponentsBuilder
+import org.junit.jupiter.api.assertThrows
 
 internal class NvSearchApiTest {
-    private val clientId = "Bl9hndTKcC_CnE1GO5po"
-    private val clientSecret = "GWbZJNKiH5"
-
-    private val restTemplate = RestTemplateBuilder()
-        .rootUri("https://openapi.naver.com")
-        .build()
-
     @Test
-    fun aaa() {
-        val uri = UriComponentsBuilder
-            .fromUriString("/v1/search/blog.json")
-            .queryParam("query", "청바지")
-            .build().toUriString()
+    @DisplayName("required parameter check test")
+    fun blog() {
+        val nvSearchApi = spyk<KkSearchApi>()
 
-        val httpHeaders = HttpHeaders().apply {
-            add("X-Naver-Client-Id", clientId)
-            add("X-Naver-Client-Secret", clientSecret)
+        // Mocking to prevent API requests
+//        every { nvSearchApi.execute(any(), any(), String::class.java) } answers { ResponseEntity.ok("{}") }
+
+        // ============================ check kwdName param ============================ //
+        assertThrows<IllegalStateException> { nvSearchApi.blog("") }.also {
+            assertEquals("kwdName should not be null", it.message)
         }
 
-        val requestEntity = RequestEntity
-            .method(HttpMethod.GET, uri)
-            .headers(httpHeaders)
-            .build()
+        // ============================ check page param ============================ //
+        assertThrows<IllegalStateException> { nvSearchApi.blog("청바지", -1, 10) }.also {
+            assertEquals("page should be between 1 and 50", it.message)
+        }
+        assertThrows<IllegalStateException> { nvSearchApi.blog("청바지", 0, 10) }.also {
+            assertEquals("page should be between 1 and 50", it.message)
+        }
+        assertThrows<IllegalStateException> { nvSearchApi.blog("청바지", 101, 10) }.also {
+            assertEquals("page should be between 1 and 50", it.message)
+        }
 
-        val result = restTemplate.exchange(requestEntity, String::class.java)
-        println(result)
+        // ============================ check size param ============================ //
+        assertThrows<IllegalStateException> { nvSearchApi.blog("청바지", 1, -1) }.also {
+            assertEquals("size should be between 1 and 50", it.message)
+        }
+        assertThrows<IllegalStateException> { nvSearchApi.blog("청바지", 1, 0) }.also {
+            assertEquals("size should be between 1 and 50", it.message)
+        }
+        assertThrows<IllegalStateException> { nvSearchApi.blog("청바지", 1, 101) }.also {
+            assertEquals("size should be between 1 and 50", it.message)
+        }
+
+        // ============================ check normal case ============================ //
+        assertDoesNotThrow { nvSearchApi.blog("청바지", 1, 10) }
     }
+
 }

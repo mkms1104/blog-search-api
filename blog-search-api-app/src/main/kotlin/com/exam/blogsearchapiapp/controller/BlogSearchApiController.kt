@@ -1,10 +1,11 @@
 package com.exam.blogsearchapiapp.controller
 
-import com.exam.domainrds.majorkwd.MajorKwdTrackerRepository
-import com.exam.openapi.app.dto.BlogSearchApiReq
-import com.exam.openapi.app.dto.BlogSearchApiRes
+import com.exam.blogsearchapiapp.dto.BlogSearchApiRequest
+import com.exam.blogsearchapiapp.dto.SuccessResponseDto
 import com.exam.blogsearchapiapp.service.BlogSearchApiService
-import com.google.gson.JsonObject
+import com.exam.domainrds.majorkwd.MajorKwdTrackerRepository
+import org.springframework.data.domain.Pageable
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -17,14 +18,21 @@ class BlogSearchApiController(
 ) {
     // 블로그 검색
     @GetMapping("search/blog")
-    fun aaa(blogSearchApiReq: BlogSearchApiReq): JsonObject {
-        return blogSearchApiService.doSearch(blogSearchApiReq)
+    fun search(
+        blogSearchApiRequest: BlogSearchApiRequest,
+        pageable: Pageable
+    ): ResponseEntity<SuccessResponseDto> {
+        return ResponseEntity.ok(
+            SuccessResponseDto(
+                blogSearchApiService.doSearch(blogSearchApiRequest, pageable),
+                pageable
+            )
+        )
     }
 
     // 인기 검색어 목록
     @GetMapping("search/kwd")
-    fun bbb(): List<BlogSearchApiRes> {
-        return majorKwdTrackerRepository.findTop10ByOrderBySearchCntDesc()
-            .map { BlogSearchApiRes(it.kwdName, it.searchCnt) }.toList()
+    fun majorKwdList(): ResponseEntity<SuccessResponseDto> {
+        return ResponseEntity.ok(SuccessResponseDto(majorKwdTrackerRepository.findTop10ByOrderBySearchCntDesc()))
     }
 }

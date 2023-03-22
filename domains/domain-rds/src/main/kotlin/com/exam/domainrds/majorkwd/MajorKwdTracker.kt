@@ -20,7 +20,7 @@ class MajorKwdTracker(
     var searchCnt = searchCnt
         private set
 
-    fun doSearch() {
+    fun incrementSearchCnt() {
         this.searchCnt += 1
     }
 

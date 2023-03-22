@@ -1,37 +1,42 @@
 package com.exam.openapi.kkapi
 
-import com.google.gson.JsonObject
+import com.google.gson.Gson
 import com.google.gson.JsonParser
-import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
-import org.springframework.http.RequestEntity
-import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
 
-@Service
-class KkSearchApi {
-    private val restTemplate = RestTemplateBuilder()
-        .rootUri("https://dapi.kakao.com")
-        .build()
+class KkSearchApi : AbstractKkApi("https://dapi.kakao.com") {
+    companion object {
+        enum class SortType(desc: String) {
+            ACCURACY("정확도순"), // default
+            RECENCY("최신순")
+            ;
+        }
+    }
 
-    fun search(kwdName: String, sort: String): JsonObject {
+    fun blog(
+        kwdName: String,
+        page: Int = 1,
+        size: Int = 10,
+        sort: SortType = SortType.ACCURACY
+    ): List<KkBlogSearchDto> {
+        check(kwdName.isNotBlank()) { "kwdName should not be null" }
+        check(page in 1..50) { "page should be between 1 and 50" }
+        check(size in 1..50) { "size should be between 1 and 50" }
+
         val uri = UriComponentsBuilder
             .fromUriString("/v2/search/blog")
             .queryParam("query", kwdName)
-            .queryParam("sort", sort)
-            .build().toUriString()
+            .queryParam("sort", sort.name.lowercase())
+            .queryParam("page", page)
+            .queryParam("size", size)
+            .build().toUri()
 
-        val httpHeaders = HttpHeaders().apply {
-            add("Authorization", "KakaoAK a5a7fc605b86230e75b1d803e7b5f39b")
-        }
-
-        val requestEntity = RequestEntity
-            .method(HttpMethod.GET, uri)
-            .headers(httpHeaders)
-            .build()
-
-        val result = restTemplate.exchange(requestEntity, String::class.java)
-        return JsonParser.parseString(result.body).asJsonObject
+        val result = execute(uri, HttpMethod.GET, String::class.java)
+        val jsonObject = JsonParser.parseString(result.body).asJsonObject
+        val documents = jsonObject.getAsJsonArray("documents")
+        return documents.map { Gson().fromJson(it.toString(), KkBlogSearchDto::class.java) }.toList()
     }
+
+    // web, vclip, image, book, cafe...
 }
