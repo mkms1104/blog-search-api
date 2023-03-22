@@ -16,16 +16,20 @@ java -jar ./blog-search-api-app/build/libs/blog-search-api-app.jar
 ```
 
 # REST API 
-블로그 검색
-request
-/api/v1/search/blog
+### GET /api/v1/search/blog (블로그 검색)
+### request
+|파라미터|설명|필수|
+|------|---|---|
+|keyword|테스트2|O|
+|page|테스트2|X|
+|size|테스트2|X|
+|sort|테스트2|X|
 
+### response
 ---
 
-인기 검색어 목록
-response
-/api/v1/search/keywords
-
+### GET /api/v1/search/major-keywords (인기 검색어 목록)
+### response
 
 # 서드파티 라이브러리
 - io.mockk:mockk:1.13.4 : 코틀린 문법 기반 mock 
