@@ -1,4 +1,4 @@
-package com.exam.openapi
+package com.exam
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 

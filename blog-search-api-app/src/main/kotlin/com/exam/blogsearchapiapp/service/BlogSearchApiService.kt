@@ -2,28 +2,22 @@ package com.exam.blogsearchapiapp.service
 
 import com.exam.blogsearchapiapp.dto.BlogSearchApiRequest
 import com.exam.blogsearchapiapp.dto.BlogSearchApiResponse
-import com.exam.domainrds.majorkwd.MajorKwdTracker
-import com.exam.domainrds.majorkwd.MajorKwdTrackerRepository
-import com.exam.openapi.kkapi.KkApiFacade
-import com.exam.openapi.nvapi.NvApiFacade
+import com.exam.domainrds.majorkeyword.MajorKeywordTracker
+import com.exam.domainrds.majorkeyword.MajorKeywordTrackerRepository
+import com.exam.openapi.kakaoapi.KakaoApiFacade
+import com.exam.openapi.naverapi.NaverApiFacade
 import com.google.common.cache.CacheBuilder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
 class BlogSearchApiService(
-    private val majorKwdTrackerRepository: MajorKwdTrackerRepository,
-    kkApiFacade: KkApiFacade,
-    nvApiFacade: NvApiFacade
+    private val majorKeywordTrackerRepository: MajorKeywordTrackerRepository,
+    kakaoApiFacade: KakaoApiFacade,
+    naverApiFacade: NaverApiFacade
 ) {
     // combine chain
-    // 해당 작업이 복잡해질 경우 분리할 것.
-    private val searchApiChain = KkSearch(kkApiFacade).apply { this.setNext(NvSearch(nvApiFacade)) }
+    private val searchApiChain = KakaoSearch(kakaoApiFacade).apply { this.setNext(NaverSearch(naverApiFacade)) }
 
     // 적중률 우선순위에 따라 삭제되는 캐시 구현 필요
     private val kwdCache = CacheBuilder.newBuilder()
@@ -31,28 +25,18 @@ class BlogSearchApiService(
         .recordStats()
         .build<String, String>()
 
-    // mutex lock
-    private val mutex = Mutex()
-
     fun doSearch(request: BlogSearchApiRequest, pageable: Pageable): List<BlogSearchApiResponse> {
         val result = searchApiChain.search(request, pageable)
-
-        runBlocking {
-            // 단일 프로세스에서 문제 없으나 멀티 프로세스 환경에서 동시성 이슈 가능성 존재
-            val isFirstSave = mutex.withLock {
-                // 신규 키워드 검색 시 최초 1회만 진입
-                if (kwdCache.getIfPresent(request.kwdName) == null) {
-                    majorKwdTrackerRepository.save(MajorKwdTracker(request.kwdName, 1))
-                    kwdCache.put(request.kwdName, "")
-                    true
-                } else false
-            }
-
-            if (!isFirstSave) withContext(Dispatchers.IO) {
-                majorKwdTrackerRepository.incrementSearchCnt(request.kwdName)
-            }
+        val isFirstSave = synchronized(this) {
+            // 신규 키워드 검색 시 최초 1회만 진입
+            if (kwdCache.getIfPresent(request.keyword) == null) {
+                // 단일 프로세스에서 문제 없으나 멀티 프로세스 환경에서 동시성 이슈 가능성 존재
+                majorKeywordTrackerRepository.save(MajorKeywordTracker(request.keyword, 1))
+                kwdCache.put(request.keyword, "")
+                true
+            } else false
         }
-
+        if (!isFirstSave) majorKeywordTrackerRepository.incrementSearchCnt(request.keyword)
         return result
     }
 }

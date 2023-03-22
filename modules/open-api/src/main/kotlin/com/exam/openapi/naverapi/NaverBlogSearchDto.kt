@@ -1,6 +1,6 @@
-package com.exam.openapi.nvapi
+package com.exam.openapi.naverapi
 
-data class NvBlogSearchDto(
+data class NaverBlogSearchDto(
     val title: String,
     val link: String,
     val description: String,

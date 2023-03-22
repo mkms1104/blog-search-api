@@ -1,8 +1,8 @@
 package com.exam.blogsearchapiapp.dto
 
-import org.springframework.data.domain.Pageable
+import com.exam.blogsearchapiapp.util.PageableUtil
 
 data class SuccessResponseDto(
     val data: Any,
-    val pageInfo: Pageable? = null
+    val pageInfo: PageableUtil.SimplePageInfo? = null
 )

@@ -1,8 +1,8 @@
-package com.exam.openapi.kkapi
+package com.exam.openapi.kakaoapi
 
 import java.time.LocalDateTime
 
-data class KkBlogSearchDto(
+data class KakaoBlogSearchDto(
     val title: String,
     val contents: String,
     val url: String,

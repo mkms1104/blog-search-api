@@ -3,13 +3,13 @@ package com.exam.blogsearchapiapp.service
 import com.exam.blogsearchapiapp.dto.BlogSearchApiRequest
 import com.exam.blogsearchapiapp.dto.BlogSearchApiResponse
 import com.exam.blogsearchapiapp.util.PageableUtil
-import com.exam.openapi.nvapi.NvApiFacade
-import com.exam.openapi.nvapi.NvSearchApi.Companion.SortType
+import com.exam.openapi.naverapi.NaverApiFacade
+import com.exam.openapi.naverapi.NaverSearchApi.Companion.SortType
 import org.springframework.data.domain.Pageable
 import org.springframework.web.client.HttpServerErrorException
 
 // concrete handler
-class NvSearch(private val nvApiFacade: NvApiFacade) : BlogSearchApiChainHandler {
+class NaverSearch(private val naverApiFacade: NaverApiFacade) : BlogSearchApiChainHandler {
     private var nextHandler: BlogSearchApiChainHandler? = null
 
     override fun setNext(chain: BlogSearchApiChainHandler): BlogSearchApiChainHandler {
@@ -29,7 +29,7 @@ class NvSearch(private val nvApiFacade: NvApiFacade) : BlogSearchApiChainHandler
                 }
             }
 
-            val result = nvApiFacade.searchApi.blog(request.kwdName, pageable.pageNumber, pageable.pageSize, sort)
+            val result = naverApiFacade.searchApi.blog(request.keyword, pageable.pageNumber, pageable.pageSize, sort)
             result.map { BlogSearchApiResponse(it.title, it.description, it.bloggername, it.bloggerlink) }.toList()
         } catch (e: HttpServerErrorException) { // catch api 5xx error
             nextHandler?.search(request, pageable) ?: throw IllegalStateException("next handler is null")

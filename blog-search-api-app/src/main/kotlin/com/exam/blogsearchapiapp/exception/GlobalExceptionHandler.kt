@@ -28,6 +28,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun unknownException(exception: Exception): ResponseEntity<ErrorResponseDto> {
+        log.info("handle unknown exception => {}", exception.message)
         return ResponseEntity.ok(ErrorResponseDto(HttpStatus.BAD_REQUEST, exception.message))
     }
 }

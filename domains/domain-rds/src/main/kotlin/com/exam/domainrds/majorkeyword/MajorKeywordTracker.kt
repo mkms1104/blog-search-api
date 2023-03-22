@@ -1,33 +1,30 @@
-package com.exam.domainrds.majorkwd
+package com.exam.domainrds.majorkeyword
 
 import org.hibernate.Hibernate
 import javax.persistence.*
 
 @Entity
-class MajorKwdTracker(
-    kwdName: String,
+@Table(indexes = [Index(name = "keyword_index", columnList = "keyword")])
+class MajorKeywordTracker(
+    keyword: String,
     searchCnt: Long
 ) {
     @Id
-    @Column(name = "major_kwd_tracker_id")
+    @Column(name = "major_keyword_tracker_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private val id: Long? = null
 
     @Column(unique = true, nullable = false)
-    val kwdName = kwdName
+    val keyword = keyword
 
     @Column(nullable = false)
     var searchCnt = searchCnt
         private set
 
-    fun incrementSearchCnt() {
-        this.searchCnt += 1
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
-        other as MajorKwdTracker
+        other as MajorKeywordTracker
 
         return id != null && id == other.id
     }

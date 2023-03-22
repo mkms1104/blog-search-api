@@ -1,4 +1,4 @@
-package com.exam.openapi.nvapi
+package com.exam.openapi.naverapi
 
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.HttpHeaders
@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
 import java.net.URI
 
-abstract class AbstractNvApi(rootUri: String) {
+abstract class AbstractNaverApi(rootUri: String) {
     private val restTemplate: RestTemplate = RestTemplateBuilder()
         .rootUri(rootUri)
         .build()

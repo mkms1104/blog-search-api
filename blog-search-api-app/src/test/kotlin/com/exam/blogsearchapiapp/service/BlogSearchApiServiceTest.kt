@@ -1,9 +1,9 @@
 package com.exam.blogsearchapiapp.service
 
 import com.exam.blogsearchapiapp.dto.BlogSearchApiRequest
-import com.exam.domainrds.majorkwd.MajorKwdTrackerRepository
-import com.exam.openapi.kkapi.KkApiFacade
-import com.exam.openapi.nvapi.NvApiFacade
+import com.exam.domainrds.majorkeyword.MajorKeywordTrackerRepository
+import com.exam.openapi.kakaoapi.KakaoApiFacade
+import com.exam.openapi.naverapi.NaverApiFacade
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import io.mockk.verify
@@ -28,22 +28,13 @@ class BlogSearchApiServiceTest {
     private lateinit var blogSearchApiService: BlogSearchApiService
 
     @SpykBean
-    private lateinit var kkApiFacade: KkApiFacade
+    private lateinit var kakaoApiFacade: KakaoApiFacade
 
     @SpykBean
-    private lateinit var nvApiFacade: NvApiFacade
+    private lateinit var naverApiFacade: NaverApiFacade
 
     @Autowired
-    private lateinit var majorKwdTrackerRepository: MajorKwdTrackerRepository
-
-    @BeforeEach
-    fun reset() {
-    }
-
-    @AfterEach
-    fun clear() {
-//        majorKwdTrackerRepository.deleteAll()
-    }
+    private lateinit var majorKeywordTrackerRepository: MajorKeywordTrackerRepository
 
     @Test
     @DisplayName("유효하지 않은 sort 값이 넘어올 경우 IllegalArgumentException 예외가 발생한다.")
@@ -67,7 +58,7 @@ class BlogSearchApiServiceTest {
     fun doChainWhen5xxServerError() {
         // 카카오 검색 API 호출 시 HttpServerErrorException 발생하도록 stubbing
         every {
-            kkApiFacade.searchApi.blog(any(), any(), any())
+            kakaoApiFacade.searchApi.blog(any(), any(), any())
         } throws HttpServerErrorException(HttpStatus.SERVICE_UNAVAILABLE)
 
         val blogSearchApiRequest = BlogSearchApiRequest("세탁기")
@@ -77,7 +68,7 @@ class BlogSearchApiServiceTest {
         blogSearchApiService.doSearch(blogSearchApiRequest, pageable)
 
         // 네이버 검색 API 메서드 호출 확인
-        verify(exactly = 1) { nvApiFacade.searchApi }
+        verify(exactly = 1) { naverApiFacade.searchApi }
     }
 
     @ParameterizedTest
@@ -90,7 +81,7 @@ class BlogSearchApiServiceTest {
         // 검색 메서드 호출
         blogSearchApiService.doSearch(blogSearchApiRequest, pageable)
 
-        val majorKwdTracker = majorKwdTrackerRepository.findByKwdName(kwdName)!!
+        val majorKwdTracker = majorKeywordTrackerRepository.findByKeyword(kwdName)!!
         assertEquals(searchCnt, majorKwdTracker.searchCnt)
     }
 
@@ -112,10 +103,10 @@ class BlogSearchApiServiceTest {
         }
         countDownLatch.await(10, TimeUnit.SECONDS)
 
-        val majorKwdTracker01 = majorKwdTrackerRepository.findByKwdName(kwdName01)!!
+        val majorKwdTracker01 = majorKeywordTrackerRepository.findByKeyword(kwdName01)!!
         assertEquals(100, majorKwdTracker01.searchCnt)
 
-        val majorKwdTracker02 = majorKwdTrackerRepository.findByKwdName(kwdName02)!!
+        val majorKwdTracker02 = majorKeywordTrackerRepository.findByKeyword(kwdName02)!!
         assertEquals(100, majorKwdTracker02.searchCnt)
     }
 }

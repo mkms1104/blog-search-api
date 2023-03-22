@@ -1,11 +1,11 @@
-package com.exam.openapi.kkapi
+package com.exam.openapi.kakaoapi
 
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import org.springframework.http.HttpMethod
 import org.springframework.web.util.UriComponentsBuilder
 
-class KkSearchApi : AbstractKkApi("https://dapi.kakao.com") {
+class KakaoSearchApi : AbstractKakaoApi("https://dapi.kakao.com") {
     companion object {
         enum class SortType(desc: String) {
             ACCURACY("정확도순"), // default
@@ -19,7 +19,7 @@ class KkSearchApi : AbstractKkApi("https://dapi.kakao.com") {
         page: Int = 1,
         size: Int = 10,
         sort: SortType = SortType.ACCURACY
-    ): List<KkBlogSearchDto> {
+    ): List<KakaoBlogSearchDto> {
         check(kwdName.isNotBlank()) { "kwdName should not be null" }
         check(page in 1..50) { "page should be between 1 and 50" }
         check(size in 1..50) { "size should be between 1 and 50" }
@@ -35,7 +35,7 @@ class KkSearchApi : AbstractKkApi("https://dapi.kakao.com") {
         val result = execute(uri, HttpMethod.GET, String::class.java)
         val jsonObject = JsonParser.parseString(result.body).asJsonObject
         val documents = jsonObject.getAsJsonArray("documents")
-        return documents.map { Gson().fromJson(it.toString(), KkBlogSearchDto::class.java) }.toList()
+        return documents.map { Gson().fromJson(it.toString(), KakaoBlogSearchDto::class.java) }.toList()
     }
 
     // web, vclip, image, book, cafe...

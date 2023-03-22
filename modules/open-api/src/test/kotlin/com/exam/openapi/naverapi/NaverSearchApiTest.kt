@@ -1,49 +1,48 @@
-package com.exam.openapi.kkapi
+package com.exam.openapi.naverapi
 
+import com.exam.openapi.kakaoapi.KakaoSearchApi
 import io.mockk.spyk
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-internal class KkSearchApiTest {
+internal class NaverSearchApiTest {
     @Test
     @DisplayName("required parameter check test")
     fun blog() {
-        val kkSearchApi = spyk<KkSearchApi>()
-
-        // Mocking to prevent API requests
-//        every { kkSearchApi.execute(any(), any(), String::class.java) } answers { ResponseEntity.ok("{}") }
+        val nvSearchApi = spyk<KakaoSearchApi>()
 
         // ============================ check kwdName param ============================ //
-        assertThrows<IllegalStateException> { kkSearchApi.blog("") }.also {
+        assertThrows<IllegalStateException> { nvSearchApi.blog("") }.also {
             assertEquals("kwdName should not be null", it.message)
         }
 
         // ============================ check page param ============================ //
-        assertThrows<IllegalStateException> { kkSearchApi.blog("청바지", -1, 10) }.also {
+        assertThrows<IllegalStateException> { nvSearchApi.blog("청바지", -1, 10) }.also {
             assertEquals("page should be between 1 and 50", it.message)
         }
-        assertThrows<IllegalStateException> { kkSearchApi.blog("청바지", 0, 10) }.also {
+        assertThrows<IllegalStateException> { nvSearchApi.blog("청바지", 0, 10) }.also {
             assertEquals("page should be between 1 and 50", it.message)
         }
-        assertThrows<IllegalStateException> { kkSearchApi.blog("청바지", 51, 10) }.also {
+        assertThrows<IllegalStateException> { nvSearchApi.blog("청바지", 101, 10) }.also {
             assertEquals("page should be between 1 and 50", it.message)
         }
 
         // ============================ check size param ============================ //
-        assertThrows<IllegalStateException> { kkSearchApi.blog("청바지", 1, -1) }.also {
+        assertThrows<IllegalStateException> { nvSearchApi.blog("청바지", 1, -1) }.also {
             assertEquals("size should be between 1 and 50", it.message)
         }
-        assertThrows<IllegalStateException> { kkSearchApi.blog("청바지", 1, 0) }.also {
+        assertThrows<IllegalStateException> { nvSearchApi.blog("청바지", 1, 0) }.also {
             assertEquals("size should be between 1 and 50", it.message)
         }
-        assertThrows<IllegalStateException> { kkSearchApi.blog("청바지", 1, 51) }.also {
+        assertThrows<IllegalStateException> { nvSearchApi.blog("청바지", 1, 101) }.also {
             assertEquals("size should be between 1 and 50", it.message)
         }
 
         // ============================ check normal case ============================ //
-        assertDoesNotThrow { kkSearchApi.blog("청바지", 1, 10) }
+        assertDoesNotThrow { nvSearchApi.blog("청바지", 1, 10) }
     }
 
 }
