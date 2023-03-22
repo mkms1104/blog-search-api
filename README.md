@@ -9,6 +9,11 @@
 - Gradle
 - H2
 
+# jar 다운로드 링크
+```
+https://github.com/mkms1104/blog-search-api/raw/main/blog-search-api-app.jar
+```
+
 # 프로젝트 실행
 
 ```
