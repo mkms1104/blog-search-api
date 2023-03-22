@@ -27,10 +27,10 @@ java -jar ./blog-search-api-app/build/libs/blog-search-api-app.jar
 
 | 파라미터    | 타입      | 설명  | 필수  |
 |---------|---------|-----|-----|
-| keyword | String  |     | O   |
-| page    | Integer |     | X   |
-| size    | Integer |     | X   |
-| sort    | String  |     | X   |
+| keyword | String  | 키워드    | O   |
+| page    | Integer | 페이지 번호    | X   |
+| size    | Integer | 페이지 사이즈    | X   |
+| sort    | String  | 정렬 기준 컬럼    | X   |
 
 ### response
 
